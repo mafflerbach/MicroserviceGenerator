@@ -8,13 +8,20 @@ $loader = require __DIR__ . '/vendor/autoload.php';
 $loader->addPsr4('MicroserviceGenerator\\', __DIR__ . "/lib/MicroserviceGenerator");
 
 
-$outputDir = '/home/maren/development/swagger/sample/';
+$outputDir = '/home/maren/development/swagger/sample/testoutput/';
 $modelPath = $outputDir.'SwaggerServer/src/';
-$contractFile = '/home/maren/development/swagger/sample/swaggerResorces/contract.yml';
+$webroot = $outputDir.'SwaggerServer';
+$contractFile = '/home/maren/development/swagger/sample/testoutput/contract.yml';
 
-#generateServer($outputDir, $contractFile);
-#generateModels($modelPath, $contractFile);
+generateServer($outputDir, $contractFile);
+generateModels($modelPath, $contractFile);
 generateRestClientFile($outputDir, $contractFile);
+startLocalserver($webroot);
+
+function startLocalserver($webroot) {
+    system("php -S localhost:8080 -t " . $webroot);
+}
+
 
 function composerInstall($serverPath)
 {

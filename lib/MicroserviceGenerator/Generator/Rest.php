@@ -19,7 +19,7 @@ class Rest
         
         $contract = $this->contract = Yaml::parseFile($contract);
         $class = '';
-        $class .= "@endpoint = \n";
+        $class .= "@endpoint = http://localhost:8080".$contract['basePath']." \n";
         $class .= $this->buildVariableList();
 
         foreach ($contract['paths'] as $key => $value) {
@@ -63,7 +63,7 @@ class Rest
 
         $blacklist = new Blacklist($targetDir."ignoreFiles.json");
         // if (!$blacklist->exist($filePath)) {
-             file_put_contents($file, $content);
+            file_put_contents($file, $content);
         //     $blacklist->add($filePath);
         // }
     }

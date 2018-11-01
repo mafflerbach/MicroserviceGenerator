@@ -1,0 +1,3 @@
+outputDir = '/path/to/outputdir'
+contractFile = '/path/to/swagger.yml';
+swaggerCodeGen = '/path/to/swagger-codegen-cli.jar'

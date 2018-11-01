@@ -7,13 +7,16 @@ use MicroserviceGenerator\File\Metadata;
 $loader = require __DIR__ . '/vendor/autoload.php';
 $loader->addPsr4('MicroserviceGenerator\\', __DIR__ . "/lib/MicroserviceGenerator");
 
+$config = parse_ini_file('config.ini');
 
-$outputDir = '/home/maren/development/swagger/sample/testoutput/';
-$modelPath = $outputDir.'SwaggerServer/src/';
-$webroot = $outputDir.'SwaggerServer';
-$contractFile = '/home/maren/development/swagger/sample/testoutput/contract.yml';
+$outputDir = $config['outputDir'];
+$modelPath = $outputDir. '/SwaggerServer/src/';
+$webroot = $outputDir. '/SwaggerServer';
 
-generateServer($outputDir, $contractFile);
+$contractFile = $config['contractFile'];
+$swaggerCodeGen = $config['swaggerCodeGen'];
+
+generateServer($outputDir, $contractFile, $swaggerCodeGen);
 generateModels($modelPath, $contractFile);
 generateRestClientFile($outputDir, $contractFile);
 startLocalserver($webroot);
@@ -35,10 +38,10 @@ function generateRestClientFile($outputDir, $contractFile)
     $rest->generate($outputDir, $contractFile);
 }
 
-function generateServer($outputDir, $contractFile)
+function generateServer($outputDir, $contractFile, $swaggerCodeGen)
 {
 
-    $command = "java -jar /home/maren/development/swagger/swagger-codegen-cli.jar \
+    $command = "java -jar ".$swaggerCodeGen." \
     generate -i ".$contractFile." \
     -l php-silex \
     -o " . $outputDir;

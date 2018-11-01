@@ -1,8 +1,8 @@
 <?php
-namespace Sixt\Generator;
+namespace MicroserviceGenerator\Generator;
 
 use Symfony\Component\Yaml\Yaml;
-use Sixt\File\Blacklist;
+use MicroserviceGenerator\File\Blacklist;
 
 class Rest
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Sixt\Generator;
+namespace MicroserviceGenerator\Generator;
 
-use Sixt\File\Blacklist;
+use MicroserviceGenerator\File\Blacklist;
 
 class Model
 {

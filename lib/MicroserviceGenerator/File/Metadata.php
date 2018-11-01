@@ -1,5 +1,5 @@
 <?php 
-namespace Sixt\File;
+namespace MicroserviceGenerator\File;
 
 class Metadata 
 {

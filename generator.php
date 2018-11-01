@@ -1,11 +1,11 @@
 <?php
 use Symfony\Component\Yaml\Yaml;
-use Sixt\Generator\Model;
-use Sixt\Generator\Rest;
-use Sixt\File\Metadata;
+use MicroserviceGenerator\Generator\Model;
+use MicroserviceGenerator\Generator\Rest;
+use MicroserviceGenerator\File\Metadata;
 
 $loader = require __DIR__ . '/vendor/autoload.php';
-$loader->addPsr4('Sixt\\', __DIR__ . "/lib/Sixt");
+$loader->addPsr4('MicroserviceGenerator\\', __DIR__ . "/lib/MicroserviceGenerator");
 
 
 $outputDir = '/home/maren/development/swagger/sample/';

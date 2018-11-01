@@ -55,7 +55,7 @@ class Model
     
             $generatedMethod .= "/**\n";
             for ($i=0; $i < count($parameters); $i++) {
-                $generatedMethod .= "* " . "$".$parameters[$i]['name'] . " ";
+                $generatedMethod .= "* @param " . "$".$parameters[$i]['name'] . " ";
                 if (isset($parameters[$i]['description'])) {
                     $generatedMethod .=  $parameters[$i]['description']. "\n";
                 }

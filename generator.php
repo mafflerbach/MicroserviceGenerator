@@ -1,6 +1,7 @@
 <?php
 use Symfony\Component\Yaml\Yaml;
 use MicroserviceGenerator\Generator\Model;
+use MicroserviceGenerator\Generator\Test;
 use MicroserviceGenerator\Generator\Rest;
 use MicroserviceGenerator\File\Metadata;
 
@@ -11,15 +12,24 @@ $config = parse_ini_file('config.ini');
 
 $outputDir = $config['outputDir'];
 $modelPath = $outputDir. '/SwaggerServer/src/';
+$modelTestPath = $outputDir. '/SwaggerServer/tests/';
 $webroot = $outputDir. '/SwaggerServer';
+$namespaceRoot  = $config['projectName'];
+
 
 $contractFile = $config['contractFile'];
 $swaggerCodeGen = $config['swaggerCodeGen'];
 
 generateServer($outputDir, $contractFile, $swaggerCodeGen);
-generateModels($modelPath, $contractFile);
+generateModels($modelPath, $contractFile, $namespaceRoot);
+generateTests($modelTestPath, $contractFile, $namespaceRoot);
 generateRestClientFile($outputDir, $contractFile);
 startLocalserver($webroot);
+cleanup();
+
+function cleanup(){
+
+}
 
 function startLocalserver($webroot) {
     system("php -S localhost:8080 -t " . $webroot);
@@ -28,8 +38,15 @@ function startLocalserver($webroot) {
 
 function composerInstall($serverPath)
 {
+
+    $command = "cd $serverPath; composer require phpunit/phpunit";
+    system($command);
+    $composer = json_decode(file_get_contents($serverPath."/composer.json"), true);
+    $composer['autoload']['classmap'] = array ('src/');
+    file_put_contents($serverPath."/composer.json", json_encode($composer, JSON_PRETTY_PRINT));
     $command = "cd $serverPath; composer install";
     system($command);
+    
 }
 
 function generateRestClientFile($outputDir, $contractFile)
@@ -51,17 +68,32 @@ function generateServer($outputDir, $contractFile, $swaggerCodeGen)
 
 }
 
-function generateModels($modelPath, $contractFile)
+function generateModels($modelPath, $contractFile, $namespaceRoot)
 {
 
     $contract = Yaml::parseFile($contractFile);
 
     foreach ($contract['paths'] as $endpoint => $value) {
-        $prefix = 'Example\Model';
+        $prefix = $namespaceRoot . '\Model';
         $metadata = new Metadata($prefix, $endpoint);
         $classname = $metadata->getClassname();
         $classnamespace = $metadata->getNamespace();
         $generator = new Model($classname, $classnamespace);
+        $generator->generate($contract, $modelPath);
+    }
+
+    runFormater($modelPath);
+}
+
+function generateTests($modelPath, $contractFile, $namespaceRoot) {
+    $contract = Yaml::parseFile($contractFile);
+
+    foreach ($contract['paths'] as $endpoint => $value) {
+        $prefix = $namespaceRoot . '\ModelTest';
+        $metadata = new Metadata($prefix, $endpoint);
+        $classname = $metadata->getClassname();
+        $classnamespace = $metadata->getNamespace();
+        $generator = new Test($classname, $classnamespace);
         $generator->generate($contract, $modelPath);
     }
 

@@ -69,27 +69,22 @@ function generateServer($outputDir, $contractFile, $swaggerCodeGen)
 
 function generateModels($modelPath, $contractFile, $namespaceRoot)
 {
-
-    $contract = Yaml::parseFile($contractFile);
-
-    foreach ($contract['paths'] as $endpoint => $value) {
-        $prefix = $namespaceRoot . '\Model';
-        $metadata = new Metadata($prefix, $endpoint);
-        $classname = $metadata->getClassname();
-        $classnamespace = $metadata->getNamespace();
-        $generator = new Model($classname, $classnamespace);
-        $generator->generate($contract, $modelPath);
-    }
-
+    $prefix = $namespaceRoot . '\Model';
+    generateSrc($prefix, $contractFile, $modelPath);
     runFormater($modelPath);
 }
 
 function generateTests($modelPath, $contractFile, $namespaceRoot)
 {
+    $prefix = $namespaceRoot . '\ModelTest';
+    generateSrc($prefix, $contractFile, $modelPath);
+    runFormater($modelPath);
+}
+
+function generateSrc($prefix, $contractFile, $modelPath) {
     $contract = Yaml::parseFile($contractFile);
 
     foreach ($contract['paths'] as $endpoint => $value) {
-        $prefix = $namespaceRoot . '\ModelTest';
         $metadata = new Metadata($prefix, $endpoint);
         $classname = $metadata->getClassname();
         $classnamespace = $metadata->getNamespace();
@@ -97,8 +92,8 @@ function generateTests($modelPath, $contractFile, $namespaceRoot)
         $generator->generate($contract, $modelPath);
     }
 
-    runFormater($modelPath);
 }
+
 
 
 

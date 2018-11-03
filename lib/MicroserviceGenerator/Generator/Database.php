@@ -37,7 +37,7 @@ class Database
         
             switch (strtolower($this->types[$i])) {
                 case 'oracle':
-                    $sqlGenerator = new Oracle();
+                //    $sqlGenerator = new Oracle();
                     break;
                     
                 case 'sqlite3':

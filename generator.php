@@ -20,13 +20,13 @@ $contractFile = $config['contractFile'];
 $swaggerCodeGen = $config['swaggerCodeGen'];
 $databaseFile = $config['databaseFile'];
 
-// generateServer($outputDir, $contractFile, $swaggerCodeGen);
-// generateModels($modelPath, $contractFile, $namespaceRoot);
-// generateTests($modelTestPath, $contractFile, $namespaceRoot);
-// generateRestClientFile($outputDir, $contractFile);
-// startLocalserver($webroot);
+//generateServer($outputDir, $contractFile, $swaggerCodeGen);
+generateModels($modelPath, $contractFile, $namespaceRoot);
+//generateTests($modelTestPath, $contractFile, $namespaceRoot);
+//generateRestClientFile($outputDir, $contractFile);
+//startLocalserver($webroot);
 // cleanup();
-generateDatabase($databaseFile);
+//generateDatabase($databaseFile);
 
 function cleanup()
 {
@@ -70,18 +70,18 @@ function generateServer($outputDir, $contractFile, $swaggerCodeGen)
 function generateModels($modelPath, $contractFile, $namespaceRoot)
 {
     $prefix = $namespaceRoot . '\Model';
-    generateSrc($prefix, $contractFile, $modelPath);
+    generateSrc($prefix, $contractFile, $modelPath,'model');
     runFormater($modelPath);
 }
 
 function generateTests($modelPath, $contractFile, $namespaceRoot)
 {
     $prefix = $namespaceRoot . '\ModelTest';
-    generateSrc($prefix, $contractFile, $modelPath);
+    generateSrc($prefix, $contractFile, $modelPath, 'test');
     runFormater($modelPath);
 }
 
-function generateSrc($prefix, $contractFile, $modelPath)
+function generateSrc($prefix, $contractFile, $modelPath, $type)
 {
     $contract = Yaml::parseFile($contractFile);
 
@@ -89,8 +89,16 @@ function generateSrc($prefix, $contractFile, $modelPath)
         $metadata = new Metadata($prefix, $endpoint);
         $classname = $metadata->getClassname();
         $classnamespace = $metadata->getNamespace();
-        $generator = new Test($classname, $classnamespace);
-        $generator->generate($contract, $modelPath);
+        switch ($type) {
+            case 'test':
+            $generator = new Test($classname, $classnamespace);
+            break;
+            
+            default:
+            $generator = new Model($classname, $classnamespace);
+                break;
+            }
+            $generator->generate($contract, $modelPath, $value);
     }
 }
 
@@ -130,7 +138,7 @@ $array = array ('structure' =>
                         'primary' => true
                     )
                 ),
-                array( 'email' => 
+                array( 'email' =>
                     array(
                         'size' => 255,
                         'type' => 'varchar',

@@ -4,7 +4,7 @@ namespace MicroserviceGenerator\Generator;
 
 use MicroserviceGenerator\File\Blacklist;
 
-class Model
+class Model extends 
 {
     private $modelName;
     private $namespace;
@@ -15,17 +15,13 @@ class Model
         $this->namespace = $namespace;
     }
 
-    public function generate($contract, $targetDir)
-    {
-        foreach ($contract['paths'] as $key => $value) {
-            $class = "<?php \n";
+    public function generate($contract, $targetDir, $value)
+    {       $class = "<?php \n";
             $class .= "namespace " . $this->namespace .";\n";
             $class .= "class " . $this->modelName . " {";
             $class .= $this->getMethodSkeleton($value);
             $class .= "}\n";
-        }
-
-        $this->save($class, $targetDir);
+            $this->save($class, $targetDir);
     }
 
     private function save($content, $targetDir)
@@ -39,18 +35,14 @@ class Model
         $file = $filePath.'/'.$this->modelName.".php";
         $relativeFilepath = str_replace('\\', '/', $this->namespace).'/'.$this->modelName.".php";
 
-        $blacklist = new Blacklist($targetDir."ignoreFiles.json");
-        if (!$blacklist->exist($relativeFilepath)) {
             file_put_contents($file, $content);
-            $blacklist->add($relativeFilepath);
-        }
+        
     }
 
     private function getMethodSkeleton($value)
     {
         $generatedMethod = '';
         foreach ($value as $methodName => $method) {
-            $parameters = $method['parameters'];
             $parameters = $method['parameters'];
     
             $generatedMethod .= "/**\n";
@@ -73,7 +65,6 @@ class Model
             $generatedMethod .="// TODO: Implementig \n";
             $generatedMethod .="}\n\n";
         }
-        
         return $generatedMethod;
     }
 }

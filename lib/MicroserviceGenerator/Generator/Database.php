@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 use Symfony\Component\Yaml\Yaml;
 use MicroserviceGenerator\Generator\Sql\Oracle;
 use MicroserviceGenerator\Generator\Sql\Sqlite;
+use MicroserviceGenerator\Generator\Sql\Statement;
 
 class Database
 {
@@ -17,12 +18,14 @@ class Database
     protected $development = null;
     protected $configuration = null;
     protected $types = array();
-    
+    private $basepath = '';
+
     private $file = null;
 
     public function __construct($file)
     {
         $this->file = $file;
+        $this->basepath = dirname($this->file);
     }
 
 
@@ -50,8 +53,56 @@ class Database
 
             if ($sqlGenerator !== null) {
                 $sqlGenerator->loadfromFile($this->file);
-                $sqlGenerator->generate();
+
+                $statements = $sqlGenerator->generate();
+
+                $this->executeSql($statements);
             }
+        }
+    }
+
+    private function executeSql(Statement $statements)
+    {
+        
+        $create = $statements->getCreateStatement();
+        $insert = $statements->getInsertStatement();
+        
+        $connection = $this->getDatabaseConnection($this->development['adapter']);
+        
+        for ($i=0; $i < count($create); $i++) {
+            $statement = $connection->prepare($create[$i]);
+            $statement->execute();
+        }
+        
+        for ($i=0; $i < count($insert); $i++) {
+            for ($k=0; $k < count($insert[$i]); $k++) {
+                $statement = $connection->prepare($insert[$i][$k]);
+                $statement->execute();
+            }
+        }
+    }
+
+    /**
+    * Undocumented function
+    *
+    * @param String $adapter
+    * @return \PDO
+    **/
+    private function getDatabaseConnection($adapter)
+    {
+        $path = $this->basepath."/database";
+        
+        switch ($adapter) {
+            case 'sqlite3':
+                if (!file_exists($path)) {
+                    mkdir($path, 0777);
+                }
+
+                return new \PDO('sqlite:'.$path.'/'. $this->development['database']);
+                break;
+            default:
+                throw new \Exception("Adapter nit found:" . $adapter);
+                break;
         }
     }
 

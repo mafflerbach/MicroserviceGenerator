@@ -2,21 +2,29 @@
 namespace MicroserviceGenerator\Generator\Sql;
 
 use MicroserviceGenerator\Generator\Sql;
+use PhpParser\PrettyPrinter\Standard;
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
+use MicroserviceGenerator\Generator\Sql\Statement\Builder;
 
 class Sqlite extends Sql
 {
     
     const DATABASE_TYPE='sqlite';
 
+    /**
+     * Undocumented function
+     *
+     * @return Statement
+     */
     public function generate()
     {
-        $this->buildInitialisationStatements();
+        return $this->buildInitialisationStatements();
     }
 
     private function buildCreateStatement($tablename, $fields)
     {
 
-        $sql = 'CREATE TABLE ';
+        $sql = 'CREATE TABLE IF NOT EXISTS ';
         $sql .= $tablename . ' ('."\n";
         for ($i=0; $i < count($fields); $i++) {
             foreach ($fields[$i] as $columnName => $attributes) {
@@ -31,30 +39,38 @@ class Sqlite extends Sql
         return $sql;
     }
 
+    /**
+     * Undocumented function
+     *
+     * @return Statement
+     */
     private function buildInitialisationStatements()
     {
-        $createStatements = '';
-        $insertStatements = '';
+        $createStatements = array();
+        $insertStatements = array();
         foreach ($this->structure as $tablename => $fields) {
-            $insertStatements .= $this->buildInsertStatements($tablename);
-            $createStatements .= $this->buildCreateStatement($tablename, $fields);
+            $insertStatements[]= $this->buildInsertStatements($tablename);
+            $createStatements[]= $this->buildCreateStatement($tablename, $fields);
         }
-        var_dump($insertStatements);
-        return array(
-            'create' => $createStatements,
-            'insert' => $insertStatements
-        );
+        
+        $statements = new Builder();
+        $statements->withCreateStatment($createStatements);
+        $statements->withInsertStatement($insertStatements);
+     
+        return $statements->build();
     }
- 
 
     private function getColumnAttributes($attributes)
     {
         $sql = $this->map($attributes['type'], self::DATABASE_TYPE);
+        if (isset($attributes['autoincrement']) && $attributes['autoincrement'] == true) {
+            return ' INTEGER PRIMARY KEY ';
+        }
         if (isset($attributes['size'])) {
             $sql .= '('.$attributes['size'].')';
         }
         if (isset($attributes['primary']) && $attributes['primary'] == true) {
-            $sql .= ' PRIMARY KEY NOT NULL ';
+            $sql .= ' PRIMARY KEY NOT NULL';
         }
         if (isset($attributes['null']) && $attributes['null'] == false && !isset($attributes['primary'])) {
             $sql .= ' NOT NULL ';
@@ -64,6 +80,38 @@ class Sqlite extends Sql
 
     private function buildInsertStatements($tableName)
     {
-        file_get_contents($this->fixturesDataPath.'/'.$tableName. '.csv'));
+        $file = $this->fixturesDataPath.'/'.$tableName. '.csv';
+
+        if (($handle = fopen($file, "r")) !== false) {
+            $i = 0;
+            $sql = '';
+            $header = 0;
+            $sqlContainer = array();
+            while (($data = fgetcsv($handle, null, ";")) !== false) {
+                
+                if ($i == 0) {
+                    $header = $data;
+                    $i++;
+                    continue;
+                }
+                $sql .= "insert into " .$tableName ."\n";
+                
+                $content = array();
+                for ($k = 0; $k < count($data); $k++) {
+                    if (is_numeric($data[$k])) {
+                        $content[] = $data[$k];
+                    } else {
+                        $content[] = "'".$data[$k]."'";
+                    }
+                }
+            
+                $sqlContainer[]= $sql .= "(".implode(',', $header).") values (".implode(',', $content)."); \n";
+                $sql ='';
+            }
+            fclose($handle);
+            return $sqlContainer;
+        }
+        
+        throw new FileNotFoundException($file);
     }
 }

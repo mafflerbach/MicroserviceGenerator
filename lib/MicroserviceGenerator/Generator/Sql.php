@@ -9,6 +9,7 @@ abstract class Sql
     
     protected $configuration;
     protected $structure;
+    protected $fixturesDataPath;
 
 
     /**
@@ -21,7 +22,10 @@ abstract class Sql
     {
         if (file_exists($file)) {
             $configuration = Yaml::parseFile($file);
-            $this->structure = $configuration['structure'];
+            
+            $this->structure = $configuration['structure']['tables'];
+            $this->fixturesDataPath = dirname($file)."/fixtures";
+            
             return;
         }
 

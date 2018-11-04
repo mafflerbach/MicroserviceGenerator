@@ -81,7 +81,8 @@ function generateTests($modelPath, $contractFile, $namespaceRoot)
     runFormater($modelPath);
 }
 
-function generateSrc($prefix, $contractFile, $modelPath) {
+function generateSrc($prefix, $contractFile, $modelPath)
+{
     $contract = Yaml::parseFile($contractFile);
 
     foreach ($contract['paths'] as $endpoint => $value) {
@@ -91,7 +92,6 @@ function generateSrc($prefix, $contractFile, $modelPath) {
         $generator = new Test($classname, $classnamespace);
         $generator->generate($contract, $modelPath);
     }
-
 }
 
 
@@ -102,7 +102,42 @@ function runFormater($path)
     system("phpcbf ". $path);
 }
 
-function generateDatabase($file) {
+function generateDatabase($file)
+{
     $db = new Database($file);
     $db->generateSql();
 }
+
+
+$array = array ('structure' =>
+    array(
+        'fixture' =>'filepath.csv',
+        'fields'=> array (
+            'User' => array(
+                array (
+                    'password' => array(
+                        'size' => 255,
+                        'type' => 'varchar',
+                        'null' => false,
+                        'primary' => true
+                    )
+                ),
+                array (
+                    'id' => array(
+                        'size' => 9,
+                        'type' => 'int',
+                        'null' => false,
+                        'primary' => true
+                    )
+                ),
+                array( 'email' => 
+                    array(
+                        'size' => 255,
+                        'type' => 'varchar',
+                        'null' => true
+                    )
+                )
+            )
+        )
+    )
+);

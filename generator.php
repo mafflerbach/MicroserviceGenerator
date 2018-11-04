@@ -6,6 +6,7 @@ use MicroserviceGenerator\Generator\Rest;
 use MicroserviceGenerator\File\Metadata;
 use MicroserviceGenerator\Generator\Database;
 
+// TODO: Add filed to class loader
 $loader = require __DIR__ . '/vendor/autoload.php';
 $loader->addPsr4('MicroserviceGenerator\\', __DIR__ . "/lib/MicroserviceGenerator");
 
@@ -24,7 +25,7 @@ $databaseFile = $config['databaseFile'];
 generateModels($modelPath, $contractFile, $namespaceRoot);
 //generateTests($modelTestPath, $contractFile, $namespaceRoot);
 //generateRestClientFile($outputDir, $contractFile);
-//startLocalserver($webroot);
+startLocalserver($webroot);
 // cleanup();
 //generateDatabase($databaseFile);
 

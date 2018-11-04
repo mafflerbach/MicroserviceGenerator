@@ -4,7 +4,7 @@ namespace MicroserviceGenerator\Generator;
 
 use MicroserviceGenerator\File\Blacklist;
 
-class Model extends 
+class Model 
 {
     private $modelName;
     private $namespace;
